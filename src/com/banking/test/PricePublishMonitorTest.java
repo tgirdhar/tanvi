@@ -24,6 +24,8 @@ public class PricePublishMonitorTest {
 	PricePublishMonitor monitor;
 	Bank bank;
 	ThirdParty thirdParty;
+	
+	
 
 	public PricePublishMonitorTest(){
 		PriceUpdateService updateService = new PriceUpdateServiceImplementation();
@@ -44,19 +46,50 @@ public class PricePublishMonitorTest {
 		assertEquals(0,monitor.compare().size());
 	}
 	
+	
+
+/**
+ * Bank sending data to third party
+ * Third Party doing throttling for the process
+ * after 31 sec
+ * compare should result no error msg
+ * 
+**/
 	@Test
-	public void test(){
+	public void testSent30Sec(){
 		bank.send();
 		thirdParty.throttle();
 		try {
-			Thread.sleep(40*1000);
+			Thread.sleep(31*1000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		assertEquals(0,monitor.compare().size());
 		
 		
 	}
+	
+	/**
+	 * Bank sending data to third party
+	 * Third Party doing throttling for the process
+	 * after29 sec
+	 * compare should result no error msg
+	 * this method should fail as client has not received any data.
+	 * 
+	**/
+		@Test
+		public void testSent29Sec(){
+			bank.send();
+			thirdParty.throttle();
+			try {
+				Thread.sleep(29*1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
+			assertEquals(0,monitor.compare().size());
+			
+		}
+		
 
 }

@@ -70,9 +70,8 @@ public class PricePublishMonitor{
 					  for(int i =0;i<errorMessages.size();i++)
 						  alertService.alert(errorMessages.get(i));
 				  }
-				  publisher.bankData.clear();
 			  }
-			},31*1000L, 30*1000L);
+			},30*1000L, 30*1000L);
 	
 		
 	}
