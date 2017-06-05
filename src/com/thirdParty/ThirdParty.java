@@ -1,13 +1,11 @@
 package com.thirdParty;
 
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import com.banking.listener.PriceListener;
 import com.banking.update.PriceUpdateService;
-import com.thirdParty.ThirdPartyMap.Node;
 
 /**
  * 
@@ -27,6 +25,7 @@ public class ThirdParty  implements PriceListener{
 	public ThirdParty(PriceUpdateService service){
 		priceMap = new ThirdPartyMap();
 		this.service = service;
+		service.subscribeToBankPriceUpdates(this);
 	}
 	
 	
@@ -35,20 +34,15 @@ public class ThirdParty  implements PriceListener{
 	 * only symbol for which prices has been sent by bank in last 30 second 
 	 * will be sent to client
 	 */
-	public void throttle() throws Exception{
+	public void throttle(){
 		Timer timer = new Timer();
 		timer.schedule(new TimerTask() {
 			  public void run() {
-				  long time = System.currentTimeMillis();
-				  for(Entry<Node,Double> entry : priceMap.getMap().entrySet()){
-					  long createdTime = entry.getKey().getCreatedDate().getTime();
-					  long diff = (time - createdTime)/1000;
-					  if(diff<=30){
-						  List<PriceListener> clientList = service.getClientList();
-						  for(int i =0;i<clientList.size();i++){
-							  PriceListener listener = clientList.get(i);
-							  listener.priceUpdate(entry.getKey().getSymbol(), entry.getValue());
-						  }
+				  for(String symbol : priceMap){
+					  List<PriceListener> clientList = service.getClientList();
+					  for(int i =0;i<clientList.size();i++){
+						  PriceListener listener = clientList.get(i);
+						  listener.priceUpdate(symbol, priceMap.get(symbol));
 					  }
 				  }
 			  }
